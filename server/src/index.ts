@@ -2,33 +2,35 @@ import express, { response } from "express";
 import Splitwise from "splitwise";
 import dotenv from "dotenv";
 import colors from "colors";
+import path from "path";
+import { Group, Metadata, Expense, User, Category } from "./types/api";
 
 dotenv.config();
 const app = express();
-const port = 8080; // default port to listen
-
-// define a route handler for the default home page
-app.get("/metadata.json", (req, res) => {
-  res.send(metadata);
-});
-
-type Metadata = {
-  user: User;
-  groups: Group[];
-  categories: Category[];
-};
-
-type User = {
-  id: string;
-  first_name: string;
-  last_name: string;
-};
-
-type Group = {};
-
-type Category = {};
+const port = 8080;
 
 let metadata: Metadata;
+
+app.get("/metadata.js", (req, res) => {
+  console.log("/metadata.js");
+  res.send(`window.splitwiseHelper={ metadata: ${JSON.stringify(metadata)}};`);
+});
+
+app.get("/group/:id/expenses", (req, res) => {
+  const group = metadata.groups.find(
+    (group) => String(group.id) === req.params.id
+  );
+
+  sw.getExpenses({
+    group_id: group.id,
+    limit: 0,
+  }).then((response: Expense[]) => {
+    const expenses = response.filter((expense) => {
+      return !expense.deleted_at;
+    });
+    res.send(expenses);
+  });
+});
 
 const sw = Splitwise({
   consumerKey: process.env.CONSUMER_KEY,
@@ -57,7 +59,7 @@ function refreshMetadata(): Promise<Metadata> {
         groups,
         categories,
       };
-      console.log(colors.green("Metadata REFRESHED"));
+      console.log(colors.green("Metadata REFRESHED"), result);
       metadata = result;
       return result;
     }

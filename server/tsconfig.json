@@ -6,12 +6,12 @@
     "noImplicitAny": true,
     "moduleResolution": "node",
     "sourceMap": true,
-    "outDir": "dist",
+    "outDir": "server/dist",
     "baseUrl": ".",
     "paths": {
       "*": ["node_modules/*"],
-      "splitwise": ["declarations/splitwise"]
+      "splitwise": ["src/declarations/splitwise"]
     }
   },
-  "include": ["src/**/*", "index.ts"]
+  "include": ["src/**/*", "src/index.ts"]
 }
